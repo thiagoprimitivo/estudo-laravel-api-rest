@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Http\Requests\StudentRequest;
+
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\Student as StudentResource;
 use App\Http\Resources\Students as StudentCollection;
@@ -15,12 +17,17 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            new StudentCollection(Student::get()),
-            Response::HTTP_OK
-        );
+        if($request->query('includes') === 'classroom') {
+            $students = Student::with('classroom')->paginate(1);
+        } else {
+            $students = Student::paginate(1);
+        }
+
+        return (new StudentCollection($students))
+                        ->response()
+                        ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
