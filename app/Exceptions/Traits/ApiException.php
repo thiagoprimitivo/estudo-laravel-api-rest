@@ -31,6 +31,8 @@ trait ApiException {
             return $this->validationException($e);
         }
 
+        //Implementar depois a exceçãp para limite de acesso à api
+
         return $this->genericException();
     }
 
