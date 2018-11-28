@@ -17,9 +17,9 @@ class Students extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'dados' => $this->collection,
+            'data' => $this->collection,
             'links' => [
-                'self' => 'treinaweb'
+                'create' => route('students.store')
             ]
         ];
     }
