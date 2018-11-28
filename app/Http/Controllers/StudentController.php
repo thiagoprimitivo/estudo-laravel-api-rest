@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Http\Requests\StudentRequest;
 
 use Illuminate\Http\Request;
+use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\Student as StudentResource;
 use App\Http\Resources\Students as StudentCollection;
@@ -49,7 +50,15 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        return new StudentResource($student);
+        if(request()->header('Accept') === 'application/xml') {
+            return $this->getStudentXmlResponse($student);
+        }
+
+        if(request()->wantsJson()) {
+            return new StudentResource($student);
+        }
+
+        return response(['message' => 'não conheço esse formato']);
     }
 
     /**
@@ -77,5 +86,19 @@ class StudentController extends Controller
         $student->delete();
 
         return [];
+    }
+
+    public function getStudentXmlResponse($student)
+    {
+        $student = $student->toArray();
+
+        $xml = new SimpleXMLElement('<student/>');
+
+        array_walk_recursive($student, function ($value, $key) use ($xml){
+           $xml->addChild($key, $value);
+        });
+
+        return response($xml->asXML(), 200)
+                    ->header('Content-Type', 'application/xml');
     }
 }
